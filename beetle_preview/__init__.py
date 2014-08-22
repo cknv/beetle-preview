@@ -21,4 +21,4 @@ class Server:
 
 def register(plugin_config, config, commander, builder, content_renderer):
     server = Server(plugin_config, config, builder)
-    commander.add('serve', server.serve, 'Serve the rendered site')
+    commander.add('preview', server.serve, 'Serve the rendered site')
