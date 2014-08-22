@@ -1,5 +1,5 @@
-import SimpleHTTPServer
-import SocketServer
+from http import server
+from socketserver import TCPServer
 import os
 
 
@@ -12,9 +12,9 @@ class Server:
     def serve(self):
         os.chdir(self.directory)
 
-        Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
+        request_handler = server.SimpleHTTPRequestHandler
 
-        httpd = SocketServer.TCPServer(('', self.port), Handler)
+        httpd = TCPServer(('', self.port), request_handler)
 
         httpd.serve_forever()
 
