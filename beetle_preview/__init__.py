@@ -6,7 +6,7 @@ import os
 class Server:
     def __init__(self, own_config, config, builder):
         self.directory = config.folders['output']
-        self.port = own_config['port']
+        self.port = own_config.get('port', 5000)
         self.builder = builder
 
     def serve(self):
