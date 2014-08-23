@@ -4,10 +4,9 @@ import os
 
 
 class Server:
-    def __init__(self, own_config, config, builder):
+    def __init__(self, own_config, config):
         self.directory = config.folders['output']
         self.port = own_config.get('port', 5000)
-        self.builder = builder
 
     def serve(self):
         os.chdir(self.directory)
@@ -23,5 +22,5 @@ class Server:
 
 
 def register(plugin_config, config, commander, builder, content_renderer):
-    server = Server(plugin_config, config, builder)
+    server = Server(plugin_config, config)
     commander.add('preview', server.serve, 'Serve the rendered site')
