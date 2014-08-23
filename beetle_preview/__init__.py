@@ -16,6 +16,7 @@ class Server:
 
         httpd = TCPServer(('', self.port), request_handler)
         try:
+            print('Preview available at http://0.0.0.0:{}/'.format(self.port))
             httpd.serve_forever()
         except KeyboardInterrupt:
             httpd.shutdown()
