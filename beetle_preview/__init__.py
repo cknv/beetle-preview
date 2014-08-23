@@ -15,8 +15,10 @@ class Server:
         request_handler = server.SimpleHTTPRequestHandler
 
         httpd = TCPServer(('', self.port), request_handler)
-
-        httpd.serve_forever()
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            httpd.shutdown()
 
 
 def register(plugin_config, config, commander, builder, content_renderer):
