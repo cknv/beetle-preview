@@ -4,10 +4,9 @@ import os
 
 
 class Server:
-    def __init__(self, own_config, config, builder):
+    def __init__(self, own_config, config):
         self.directory = config.folders['output']
-        self.port = own_config['port']
-        self.builder = builder
+        self.port = own_config.get('port', 5000)
 
     def serve(self):
         os.chdir(self.directory)
@@ -16,11 +15,12 @@ class Server:
 
         httpd = TCPServer(('', self.port), request_handler)
         try:
+            print('Preview available at http://0.0.0.0:{}/'.format(self.port))
             httpd.serve_forever()
         except KeyboardInterrupt:
             httpd.shutdown()
 
 
 def register(plugin_config, config, commander, builder, content_renderer):
-    server = Server(plugin_config, config, builder)
+    server = Server(plugin_config, config)
     commander.add('preview', server.serve, 'Serve the rendered site')
