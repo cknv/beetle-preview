@@ -30,8 +30,6 @@ class Updater(FileSystemEventHandler):
                     self.writer.write_file(destination, content)
                     self.cache[destination] = digest
                     print('updated')
-            else:
-                print('cached')
 
         os.chdir(self.directory)
 
