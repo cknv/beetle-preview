@@ -25,11 +25,11 @@ class Updater(FileSystemEventHandler):
             if destination not in self.cache:
                 self.writer.write_file(destination, content)
                 self.cache[destination] = digest
-                print('written')
+                print('written', destination)
             elif self.cache[destination] != digest:
                     self.writer.write_file(destination, content)
                     self.cache[destination] = digest
-                    print('updated')
+                    print('updated', destination)
 
         os.chdir(self.directory)
 
