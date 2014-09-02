@@ -1,4 +1,4 @@
-from beetle import Commander, Writer
+from beetle.context import commander, writer
 
 from http import server
 from socketserver import TCPServer
@@ -9,41 +9,39 @@ from hashlib import md5
 import os
 
 class Updater(FileSystemEventHandler):
-    cache = {}
-    writer = Writer()
-
-    def __init__(self, serve_directory):
+    def __init__(self, serve_directory, writer):
         self.directory = serve_directory
+        self.writer = writer
+        self.cache = {}
 
     def on_any_event(self, event):
         # Urgh, ugly directory hack.
         # Could not find an easy way to serve files from a subfolder.
         os.chdir('..')
-
         for destination, content in self.writer.files():
             digest = md5(content).hexdigest()
+            full_destination = os.path.join(self.directory, destination)
             if destination not in self.cache:
-                self.writer.write_file(destination, content)
+                self.writer.write_file(full_destination, content)
                 self.cache[destination] = digest
                 print('written', destination)
             elif self.cache[destination] != digest:
-                    self.writer.write_file(destination, content)
+                    self.writer.write_file(full_destination, content)
                     self.cache[destination] = digest
                     print('updated', destination)
 
         os.chdir(self.directory)
 
 class Server:
-    def __init__(self, own_config, config):
+    def __init__(self, own_config, config, updater):
         self.directory = config.folders['output']
         self.content = config.folders['content']
         self.port = own_config.get('port', 5000)
+        self.updater = updater
 
     def monitor(self):
-        updater = Updater(self.directory)
-
         observer = Observer()
-        observer.schedule(updater, self.content, recursive=True)
+        observer.schedule(self.updater, self.content, recursive=True)
         observer.start()
 
     def serve(self):
@@ -61,5 +59,6 @@ class Server:
 
 
 def register(plugin_config, beetle_config):
-    server = Server(plugin_config, beetle_config)
-    Commander.add('preview', server.serve, 'Serve the rendered site')
+    updater = Updater(beetle_config.folders['output'], writer)
+    server = Server(plugin_config, beetle_config, updater)
+    commander.add('preview', server.serve, 'Serve the rendered site')
