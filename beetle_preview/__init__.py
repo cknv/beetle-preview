@@ -10,6 +10,7 @@ import os
 
 class Updater(FileSystemEventHandler):
     def __init__(self, serve_directory, writer):
+        self.basepath = os.getcwd()
         self.directory = serve_directory
         self.writer = writer
         self.cache = {}
@@ -20,13 +21,17 @@ class Updater(FileSystemEventHandler):
         os.chdir('..')
         for destination, content in self.writer.files():
             digest = md5(content).hexdigest()
-            full_destination = os.path.join(self.directory, destination)
+            abs_path = os.path.join(
+                self.basepath,
+                self.directory,
+                destination,
+            )
             if destination not in self.cache:
-                self.writer.write_file(full_destination, content)
+                self.writer.write_file(abs_path, content)
                 self.cache[destination] = digest
                 print('written', destination)
             elif self.cache[destination] != digest:
-                    self.writer.write_file(full_destination, content)
+                    self.writer.write_file(abs_path, content)
                     self.cache[destination] = digest
                     print('updated', destination)
 
