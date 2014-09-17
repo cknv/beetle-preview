@@ -1,5 +1,3 @@
-from beetle.context import commander, writer
-
 from http import server
 from socketserver import TCPServer
 from watchdog.observers import Observer
@@ -38,10 +36,10 @@ class Updater(FileSystemEventHandler):
         os.chdir(self.directory)
 
 class Server:
-    def __init__(self, own_config, config, updater):
-        self.directory = config.folders['output']
-        self.content = config.folders['content']
-        self.port = own_config.get('port', 5000)
+    def __init__(self, content_folder, output_folder, port, updater):
+        self.directory = output_folder
+        self.content = content_folder
+        self.port = port
         self.updater = updater
 
     def monitor(self):
@@ -63,7 +61,10 @@ class Server:
             httpd.shutdown()
 
 
-def register(plugin_config, beetle_config):
-    updater = Updater(beetle_config.folders['output'], writer)
-    server = Server(plugin_config, beetle_config, updater)
-    commander.add('preview', server.serve, 'Serve the rendered site')
+def register(ctx, config):
+    content_folder = ctx.config.folders['content']
+    output_folder = ctx.config.folders['output']
+    port = config.get('port', 5000)
+    updater = Updater(ctx.config.folders['output'], ctx.writer)
+    server = Server(content_folder, output_folder, port, updater)
+    ctx.commander.add('preview', server.serve)
