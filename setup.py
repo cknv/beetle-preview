@@ -9,4 +9,7 @@ setup(
     packages=[
         'beetle_preview'
     ],
+    install_requires=[
+        'watchdog==0.8.1'
+    ],
 )
