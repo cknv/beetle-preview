@@ -1,3 +1,4 @@
+from beetle.renderers import MissingRendererError
 from http import server
 from socketserver import TCPServer
 from watchdog.observers import Observer
@@ -24,15 +25,17 @@ class Updater(FileSystemEventHandler):
                 self.directory,
                 destination,
             )
-            if destination not in self.cache:
-                self.writer.write_file(abs_path, content)
-                self.cache[destination] = digest
-                print('written', destination)
-            elif self.cache[destination] != digest:
+            try:
+                if destination not in self.cache:
                     self.writer.write_file(abs_path, content)
                     self.cache[destination] = digest
-                    print('updated', destination)
-
+                    print('written', destination)
+                elif self.cache[destination] != digest:
+                        self.writer.write_file(abs_path, content)
+                        self.cache[destination] = digest
+                        print('updated', destination)
+            except MissingRendererError:
+                print('could not render:{}'.format(destination))
         os.chdir(self.directory)
 
 class Server:
