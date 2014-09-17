@@ -70,4 +70,4 @@ def register(ctx, config):
     port = config.get('port', 5000)
     updater = Updater(ctx.config.folders['output'], ctx.writer)
     server = Server(content_folder, output_folder, port, updater)
-    ctx.commander.add('preview', server.serve)
+    ctx.commander.add('preview', server.serve, 'Serve the rendered site')
