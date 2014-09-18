@@ -15,6 +15,7 @@ class Updater(FileSystemEventHandler):
         self.cache = {}
 
     def on_any_event(self, event):
+        # print(event)
         # Urgh, ugly directory hack.
         # Could not find an easy way to serve files from a subfolder.
         os.chdir('..')
@@ -39,15 +40,18 @@ class Updater(FileSystemEventHandler):
         os.chdir(self.directory)
 
 class Server:
-    def __init__(self, content_folder, output_folder, port, updater):
+    def __init__(self, folders, output_folder, port, updater):
         self.directory = output_folder
-        self.content = content_folder
+        # self.content = content_folder
+        self.folders = folders
         self.port = port
         self.updater = updater
 
     def monitor(self):
         observer = Observer()
-        observer.schedule(self.updater, self.content, recursive=True)
+        for each in self.folders:
+            observer.schedule(self.updater, each, recursive=True)
+        # observer.schedule(self.updater, self.content, recursive=True)
         observer.start()
 
     def serve(self):
@@ -65,9 +69,14 @@ class Server:
 
 
 def register(ctx, config):
-    content_folder = ctx.config.folders['content']
+    folders = [
+        ctx.config.folders['content'],
+        ctx.config.folders['include'],
+        ctx.config.folders['templates'],
+    ]
+    # content_folder = ctx.config.folders['content']
     output_folder = ctx.config.folders['output']
     port = config.get('port', 5000)
     updater = Updater(ctx.config.folders['output'], ctx.writer)
-    server = Server(content_folder, output_folder, port, updater)
+    server = Server(folders, output_folder, port, updater)
     ctx.commander.add('preview', server.serve, 'Serve the rendered site')
