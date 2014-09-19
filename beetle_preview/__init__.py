@@ -15,7 +15,6 @@ class Updater(FileSystemEventHandler):
         self.cache = {}
 
     def on_any_event(self, event):
-        # print(event)
         # Urgh, ugly directory hack.
         # Could not find an easy way to serve files from a subfolder.
         os.chdir('..')
